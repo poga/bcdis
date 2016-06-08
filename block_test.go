@@ -29,12 +29,12 @@ func TestBlock(t *testing.T) {
 
 		for name, b := range testblocks {
 
-			Convey(name+"is hashable", func() {
+			Convey(name+" is hashable", func() {
 				_, err := b.Hash()
 				So(err, ShouldBeNil)
 			})
 
-			Convey(name+"is workable", func() {
+			Convey(name+" is workable", func() {
 				Convey("can have muliple try of Proof of Work", func() {
 					hash, err := b.Hash()
 					So(err, ShouldBeNil)
@@ -46,14 +46,14 @@ func TestBlock(t *testing.T) {
 					So(hash, ShouldNotEqual, hash2)
 				})
 
-				Convey("can find a correct proof of work", func() { // might take some time
+				Convey(" can find a correct proof of work", func() { // might take some time
 					err := Work(b)
 
 					So(err, ShouldBeNil)
 				})
 			})
 
-			Convey(name+"is signable", func() {
+			Convey(name+" is signable", func() {
 				privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
 				So(err, ShouldBeNil)
 
@@ -93,7 +93,7 @@ func TestBlock(t *testing.T) {
 				})
 			})
 
-			Convey(name+"can add transactions into block", func() {
+			Convey(name+" can add transactions into block", func() {
 				b.Transactions = append(b.Transactions, NewTransaction("alice", "bob", "payload"))
 
 				Convey("block transaction count need to be power of 2 to calculate merkle hash", func() {
@@ -128,7 +128,7 @@ func TestBlock(t *testing.T) {
 					So(b.VerifyTransaction(), ShouldBeNil)
 
 					Convey("if any transaction is modified, block should be failed to verify without rehash", func() {
-						b.Transactions[0].NextTry()
+						b.Transactions[1].NextTry()
 						So(b.VerifyTransaction(), ShouldNotBeNil)
 
 						Convey("if we rehash the block, the block will be verified again", func() {
