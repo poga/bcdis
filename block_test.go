@@ -93,6 +93,11 @@ func TestBlock(t *testing.T) {
 				})
 			})
 
+			Convey(name+" with no transaction can't be verified", func() {
+				So(b.HashTransactions(), ShouldNotBeNil)
+				So(b.VerifyTransaction(), ShouldNotBeNil)
+			})
+
 			Convey(name+" can add transactions into block", func() {
 				b.Transactions = append(b.Transactions, NewTransaction("alice", "bob", "payload"))
 
