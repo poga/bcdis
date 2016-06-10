@@ -50,7 +50,7 @@ func (b *Block) Signature() ([]byte, error) {
 // merkle root
 func (b *Block) HashTransactions() error {
 	if len(b.Transactions) < 2 || !isPowerOf2(len(b.Transactions)) {
-		return errors.New("block can only contain 2^n transactions")
+		return errors.New("block can only contain 2^n transactions and n can't be 0")
 	}
 
 	length := len(b.Transactions)
@@ -64,7 +64,7 @@ func (b *Block) HashTransactions() error {
 
 func (b *Block) VerifyTransaction() error {
 	if len(b.Transactions) < 2 || !isPowerOf2(len(b.Transactions)) {
-		return errors.New("block can only contain 2^n transactions")
+		return errors.New("block can only contain 2^n transactions and n can't be 0")
 	}
 
 	length := len(b.Transactions)
@@ -97,11 +97,10 @@ func NewBlock(previous *Block) (*Block, error) {
 }
 
 func isPowerOf2(n int) bool {
-	return (n != 0) && ((n & (n - 1)) == 0)
+	return ((n & (n - 1)) == 0)
 }
 
 func merkleHash(left []*Transaction, right []*Transaction) ([32]byte, error) {
-	//fmt.Println(len(left), len(right))
 	if len(left) == 1 && len(right) == 1 {
 		leftHash, err := left[0].Hash()
 		if err != nil {
