@@ -1,8 +1,6 @@
 package main
 
 import (
-	"crypto/rand"
-	"crypto/rsa"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -37,14 +35,14 @@ func TestTransaction(t *testing.T) {
 		})
 
 		Convey("is signable", func() {
-			privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
+			account, err := NewAccount()
 			So(err, ShouldBeNil)
 
 			Convey("can be signed without change it's hash", func() {
 				hash, err := t.Hash()
 				So(err, ShouldBeNil)
 
-				Sign(t, privateKey)
+				Sign(t, account)
 
 				hash2, err := t.Hash()
 				So(err, ShouldBeNil)
@@ -55,13 +53,13 @@ func TestTransaction(t *testing.T) {
 				hash, err := t.Hash()
 				So(err, ShouldBeNil)
 
-				Sign(t, privateKey)
+				Sign(t, account)
 
 				hash2, err := t.Hash()
 				So(err, ShouldBeNil)
 				So(hash, ShouldEqual, hash2)
 
-				err = Verify(t, &privateKey.PublicKey)
+				err = Verify(t, account)
 				So(err, ShouldBeNil)
 			})
 			Convey("can be signed without affecting hash", func() {

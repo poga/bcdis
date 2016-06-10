@@ -1,9 +1,11 @@
 package main
 
 import (
-	"crypto"
+	"crypto/ecdsa"
 	"crypto/rand"
-	"crypto/rsa"
+	"encoding/asn1"
+	"errors"
+	"math/big"
 )
 
 type Signable interface {
@@ -12,29 +14,51 @@ type Signable interface {
 	Signature() ([]byte, error)
 }
 
-func Sign(signable Signable, privateKey *rsa.PrivateKey) error {
+func Sign(signable Signable, account *Account) error {
 	hash, err := signable.Hash()
 	if err != nil {
 		return err
 	}
 
-	signature, err := rsa.SignPKCS1v15(rand.Reader, privateKey, crypto.SHA256, hash[:])
+	r, s, err := ecdsa.Sign(rand.Reader, account.Key, hash[:])
 	if err != nil {
 		return err
 	}
-	signable.SignWith([]byte(signature))
+
+	sig, err := asn1.Marshal(signature{r, s})
+	if err != nil {
+		return err
+	}
+	return signable.SignWith(sig)
+}
+
+func Verify(signable Signable, account *Account) error {
+	hash, err := signable.Hash()
+	if err != nil {
+		return err
+	}
+
+	sig, err := signable.Signature()
+	if err != nil {
+		return err
+	}
+
+	var ecdsaSignature signature
+	_, err = asn1.Unmarshal(sig, &ecdsaSignature)
+	if err != nil {
+		return err
+	}
+
+	ok := ecdsa.Verify(account.Public(), hash[:], ecdsaSignature.R, ecdsaSignature.S)
+	if !ok {
+		return errors.New("Verification Failed")
+	}
+
 	return nil
 }
 
-func Verify(signable Signable, publicKey *rsa.PublicKey) error {
-	hash, err := signable.Hash()
-	if err != nil {
-		return err
-	}
-
-	signature, err := signable.Signature()
-	if err != nil {
-		return err
-	}
-	return rsa.VerifyPKCS1v15(publicKey, crypto.SHA256, hash[:], signature)
+// ECDSA signature
+type signature struct {
+	R *big.Int
+	S *big.Int
 }
