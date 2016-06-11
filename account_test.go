@@ -25,6 +25,5 @@ func TestAccount(t *testing.T) {
 
 			So(string(address[:]), ShouldNotBeNil)
 		})
-
 	})
 }

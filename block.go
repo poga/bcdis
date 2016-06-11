@@ -12,6 +12,8 @@ type Block struct {
 	Header       BlockHeader
 	Transactions []*Transaction
 	signature    []byte
+	State        map[string]interface{}
+	Previous     *Block
 }
 
 type BlockHeader struct {
@@ -78,6 +80,34 @@ func (b *Block) VerifyTransaction() error {
 	return nil
 }
 
+func (b *Block) UpdateState() error {
+	// TODO: evaluate all commands in the transactions, based on previous block's state
+
+	var state map[string]interface{}
+	if b.Previous == nil {
+		state = make(map[string]interface{})
+	} else {
+		state = cloneState(b.Previous.State)
+	}
+
+	for _, tx := range b.Transactions {
+		cmd, err := tx.Command()
+		if err != nil {
+			return err
+		}
+
+		// TODO: other commands
+		if cmd.OP == SET {
+			state[cmd.Key] = cmd.Arguments[0]
+		}
+	}
+
+	// TODO: hash states in blockchain with patricia tree
+	b.State = state
+
+	return nil
+}
+
 func NewBlock(previous *Block) (*Block, error) {
 	var prevHash [32]byte
 	var err error
@@ -89,6 +119,7 @@ func NewBlock(previous *Block) (*Block, error) {
 	}
 	return &Block{
 		Transactions: make([]*Transaction, 0),
+		Previous:     previous,
 		Header: BlockHeader{
 			Time: time.Now(),
 			Prev: prevHash,
@@ -128,4 +159,13 @@ func merkleHash(left []*Transaction, right []*Transaction) ([32]byte, error) {
 	combine = append(combine, leftMerkleHash[:]...)
 	combine = append(combine, rightMerkleHash[:]...)
 	return sha256.Sum256(combine), nil
+}
+
+func cloneState(state map[string]interface{}) map[string]interface{} {
+	newState := make(map[string]interface{})
+	for k, v := range state {
+		newState[k] = v
+	}
+
+	return newState
 }

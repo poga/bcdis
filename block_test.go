@@ -144,4 +144,40 @@ func TestBlock(t *testing.T) {
 			})
 		}
 	})
+	Convey("A root block with commmand transaction", t, func() {
+		rootBlock, err := NewBlock(nil)
+		So(err, ShouldBeNil)
+
+		tx, err := NewTransactionFromCommand("alice", NewCommand(SET, "foo", "bar"))
+		So(err, ShouldBeNil)
+
+		rootBlock.Transactions = append(rootBlock.Transactions, tx)
+
+		Convey("can caluclate new state based on included transactions", func() {
+			err := rootBlock.UpdateState()
+			So(err, ShouldBeNil)
+
+			So(rootBlock.State, ShouldResemble, map[string]interface{}{"foo": "bar"})
+
+			Convey("A child block with command transaction", func() {
+				childBlock, err := NewBlock(rootBlock)
+				So(err, ShouldBeNil)
+
+				tx, err := NewTransactionFromCommand("alice", NewCommand(SET, "foo2", "baz"))
+				So(err, ShouldBeNil)
+
+				Convey("can caluclate new state based on included transactions", func() {
+					childBlock.Transactions = append(childBlock.Transactions, tx)
+					err := childBlock.UpdateState()
+					So(err, ShouldBeNil)
+
+					// previous state should not be affected
+					So(rootBlock.State, ShouldResemble, map[string]interface{}{"foo": "bar"})
+
+					So(childBlock.State, ShouldResemble, map[string]interface{}{"foo": "bar", "foo2": "baz"})
+				})
+			})
+		})
+
+	})
 }

@@ -46,6 +46,16 @@ func (t *Transaction) Signature() ([]byte, error) {
 	return signature, nil
 }
 
+func (t *Transaction) Command() (Command, error) {
+	var cmd Command
+	err := json.Unmarshal([]byte(t.Header.What), &cmd)
+	if err != nil {
+		return Command{}, err
+	}
+
+	return cmd, nil
+}
+
 func NewTransaction(from string, to string, what string) *Transaction {
 	return &Transaction{
 		Header: TransactionHeader{
@@ -55,4 +65,13 @@ func NewTransaction(from string, to string, what string) *Transaction {
 			Time: time.Now(),
 		},
 	}
+}
+
+func NewTransactionFromCommand(from string, command Command) (*Transaction, error) {
+	payload, err := json.Marshal(command)
+	if err != nil {
+		return nil, err
+	}
+
+	return NewTransaction(from, command.Key, string(payload)), nil
 }
