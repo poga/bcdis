@@ -1,0 +1,167 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"path": "bcdis",
+			"revision": ""
+		},
+		{
+			"path": "bytes",
+			"revision": ""
+		},
+		{
+			"path": "crypto",
+			"revision": ""
+		},
+		{
+			"path": "crypto/ecdsa",
+			"revision": ""
+		},
+		{
+			"path": "crypto/elliptic",
+			"revision": ""
+		},
+		{
+			"path": "crypto/rand",
+			"revision": ""
+		},
+		{
+			"path": "crypto/sha256",
+			"revision": ""
+		},
+		{
+			"path": "encoding/asn1",
+			"revision": ""
+		},
+		{
+			"path": "encoding/base64",
+			"revision": ""
+		},
+		{
+			"path": "encoding/binary",
+			"revision": ""
+		},
+		{
+			"path": "encoding/json",
+			"revision": ""
+		},
+		{
+			"path": "errors",
+			"revision": ""
+		},
+		{
+			"path": "flag",
+			"revision": ""
+		},
+		{
+			"path": "fmt",
+			"revision": ""
+		},
+		{
+			"path": "github.com/gopherjs/gopherjs/js",
+			"revision": ""
+		},
+		{
+			"path": "github.com/jtolds/gls",
+			"revision": ""
+		},
+		{
+			"path": "github.com/smartystreets/assertions",
+			"revision": ""
+		},
+		{
+			"path": "github.com/smartystreets/assertions/internal/go-render/render",
+			"revision": ""
+		},
+		{
+			"path": "github.com/smartystreets/assertions/internal/oglematchers",
+			"revision": ""
+		},
+		{
+			"path": "github.com/smartystreets/goconvey/convey",
+			"revision": ""
+		},
+		{
+			"checksumSHA1": "9LakndErFi5uCXtY1KWl0iRnT4c=",
+			"path": "github.com/smartystreets/goconvey/convey/gotest",
+			"revision": "c53abc99456fa3402dd33c15ee51c3e545e04a3f",
+			"revisionTime": "2016-05-23T10:31:47-05:00"
+		},
+		{
+			"checksumSHA1": "FWDhk37bhAwZ2363D/L2xePwR64=",
+			"path": "github.com/smartystreets/goconvey/convey/reporting",
+			"revision": "c53abc99456fa3402dd33c15ee51c3e545e04a3f",
+			"revisionTime": "2016-05-23T10:31:47-05:00"
+		},
+		{
+			"checksumSHA1": "98BiBUGEXsBWb3OZcmFTxEXLo3M=",
+			"path": "github.com/tv42/base58",
+			"revision": "b6649477bfe6276322b4eeaae8f5e947b49cec92",
+			"revisionTime": "2015-01-13T15:56:51-08:00"
+		},
+		{
+			"checksumSHA1": "y/oIaxq2d3WPizRZfVjo8RCRYTU=",
+			"path": "golang.org/x/crypto/ripemd160",
+			"revision": "77f4136a99ffb5ecdbdd0226bd5cb146cf56bc0e",
+			"revisionTime": "2016-06-07T11:36:12+01:00"
+		},
+		{
+			"path": "hash",
+			"revision": ""
+		},
+		{
+			"path": "io",
+			"revision": ""
+		},
+		{
+			"path": "math",
+			"revision": ""
+		},
+		{
+			"path": "math/big",
+			"revision": ""
+		},
+		{
+			"path": "os",
+			"revision": ""
+		},
+		{
+			"path": "reflect",
+			"revision": ""
+		},
+		{
+			"path": "regexp",
+			"revision": ""
+		},
+		{
+			"path": "runtime",
+			"revision": ""
+		},
+		{
+			"path": "sort",
+			"revision": ""
+		},
+		{
+			"path": "strconv",
+			"revision": ""
+		},
+		{
+			"path": "strings",
+			"revision": ""
+		},
+		{
+			"path": "sync",
+			"revision": ""
+		},
+		{
+			"path": "testing",
+			"revision": ""
+		},
+		{
+			"path": "time",
+			"revision": ""
+		}
+	],
+	"rootPath": "bcdis"
+}
