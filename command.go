@@ -6,6 +6,7 @@ type OP int
 const (
 	// string
 	SET OP = iota
+	INCR
 )
 
 type Command struct {

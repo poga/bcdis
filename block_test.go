@@ -144,6 +144,7 @@ func TestBlock(t *testing.T) {
 			})
 		}
 	})
+
 	Convey("A root block with commmand transaction", t, func() {
 		rootBlock, err := NewBlock(nil)
 		So(err, ShouldBeNil)
@@ -178,6 +179,5 @@ func TestBlock(t *testing.T) {
 				})
 			})
 		})
-
 	})
 }

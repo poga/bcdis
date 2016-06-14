@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"strconv"
 	"time"
 )
 
@@ -97,8 +98,18 @@ func (b *Block) UpdateState() error {
 		}
 
 		// TODO: other commands
-		if cmd.OP == SET {
+		switch cmd.OP {
+		case SET:
 			state[cmd.Key] = cmd.Arguments[0]
+		case INCR:
+			if _, ok := state[cmd.Key]; !ok {
+				state[cmd.Key] = "0"
+			}
+			i, err := strconv.ParseInt(state[cmd.Key].(string), 10, 64)
+			if err != nil {
+				return err
+			}
+			state[cmd.Key] = strconv.FormatInt(i+1, 10)
 		}
 	}
 
