@@ -82,8 +82,6 @@ func (b *Block) VerifyTransaction() error {
 }
 
 func (b *Block) UpdateState() error {
-	// TODO: evaluate all commands in the transactions, based on previous block's state
-
 	var state map[string]interface{}
 	if b.Previous == nil {
 		state = make(map[string]interface{})
@@ -97,7 +95,6 @@ func (b *Block) UpdateState() error {
 			return err
 		}
 
-		// TODO: other commands
 		switch cmd.OP {
 		case SET:
 			state[cmd.Key] = cmd.Arguments[0]
