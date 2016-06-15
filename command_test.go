@@ -48,4 +48,27 @@ func TestCommand(t *testing.T) {
 			So(state, ShouldResemble, map[string]interface{}{"foo": "1"})
 		})
 	})
+
+	Convey("GETSET", t, func() {
+		state := map[string]interface{}{"foo": "1"}
+
+		Convey("can update and set state", func() {
+			cmd := NewCommand(GETSET, "foo", "2")
+
+			ret, err := cmd.Execute(state)
+			So(err, ShouldBeNil)
+			So(ret, ShouldEqual, "1")
+
+			So(state, ShouldResemble, map[string]interface{}{"foo": "2"})
+		})
+
+		Convey("returns error if key is associated with a non-string value", func() {
+			state := map[string]interface{}{"foo": 1}
+
+			cmd := NewCommand(GETSET, "foo", "2")
+
+			_, err := cmd.Execute(state)
+			So(err, ShouldNotBeNil)
+		})
+	})
 }

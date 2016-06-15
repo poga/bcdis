@@ -1,6 +1,9 @@
 package main
 
-import "strconv"
+import (
+	"errors"
+	"strconv"
+)
 
 type OP int
 
@@ -9,6 +12,7 @@ const (
 	SET OP = iota
 	INCR
 	GET
+	GETSET
 )
 
 type Command struct {
@@ -32,6 +36,13 @@ func (cmd Command) Execute(state map[string]interface{}) (interface{}, error) {
 		state[cmd.Key] = strconv.FormatInt(i+1, 10)
 	case GET:
 		return state[cmd.Key], nil
+	case GETSET:
+		if _, ok := state[cmd.Key].(string); !ok {
+			return nil, errors.New("WRONGTYPE Operation against a key holding the wrong kind of value")
+		}
+		oldValue := state[cmd.Key]
+		state[cmd.Key] = cmd.Arguments[0]
+		return oldValue, nil
 	}
 
 	return nil, nil

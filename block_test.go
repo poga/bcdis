@@ -178,6 +178,27 @@ func TestBlock(t *testing.T) {
 					So(childBlock.State, ShouldResemble, map[string]interface{}{"foo": "bar", "foo2": "baz"})
 				})
 			})
+
+			Convey("can set return value from transaction into another key", func() {
+				childBlock, err := NewBlock(rootBlock)
+				So(err, ShouldBeNil)
+
+				tx, err := NewTransactionFromCommand("alice", NewCommand(GETSET, "foo", "baz"))
+				So(err, ShouldBeNil)
+
+				Convey("can caluclate new state based on included transactions", func() {
+					childBlock.Transactions = append(childBlock.Transactions, tx)
+					err := childBlock.UpdateState()
+					So(err, ShouldBeNil)
+
+					// previous state should not be affected
+					So(rootBlock.State, ShouldResemble, map[string]interface{}{"foo": "bar"})
+					retKey, err := tx.ReturnKey()
+					So(err, ShouldBeNil)
+
+					So(childBlock.State, ShouldResemble, map[string]interface{}{"foo": "baz", string(retKey) + ":ret": "bar"})
+				})
+			})
 		})
 	})
 }

@@ -94,11 +94,20 @@ func (b *Block) UpdateState() error {
 			return err
 		}
 
-		// TODO: handle return values
-		_, err = cmd.Execute(state)
+		// TODO: handle return values from transaction (set to another key?)
+		ret, err := cmd.Execute(state)
 		if err != nil {
 			return err
 		}
+
+		if ret != nil {
+			retKey, err := tx.ReturnKey()
+			if err != nil {
+				return err
+			}
+			state[string(retKey)+":ret"] = ret
+		}
+
 	}
 
 	// TODO: hash states in blockchain with patricia tree
