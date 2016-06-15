@@ -158,7 +158,7 @@ func TestBlock(t *testing.T) {
 			err := rootBlock.UpdateState()
 			So(err, ShouldBeNil)
 
-			So(rootBlock.State, ShouldResemble, map[string]interface{}{"foo": "bar"})
+			So(rootBlock.State["foo"], ShouldEqual, "bar")
 
 			Convey("A child block with command transaction", func() {
 				childBlock, err := NewBlock(rootBlock)
@@ -173,9 +173,9 @@ func TestBlock(t *testing.T) {
 					So(err, ShouldBeNil)
 
 					// previous state should not be affected
-					So(rootBlock.State, ShouldResemble, map[string]interface{}{"foo": "bar"})
+					So(rootBlock.State["foo"], ShouldEqual, "bar")
 
-					So(childBlock.State, ShouldResemble, map[string]interface{}{"foo": "bar", "foo2": "baz"})
+					So(childBlock.State["foo2"], ShouldEqual, "baz")
 				})
 			})
 
@@ -192,11 +192,12 @@ func TestBlock(t *testing.T) {
 					So(err, ShouldBeNil)
 
 					// previous state should not be affected
-					So(rootBlock.State, ShouldResemble, map[string]interface{}{"foo": "bar"})
+					So(rootBlock.State["foo"], ShouldResemble, "bar")
 					retKey, err := tx.ReturnKey()
 					So(err, ShouldBeNil)
 
-					So(childBlock.State, ShouldResemble, map[string]interface{}{"foo": "baz", string(retKey) + ":ret": "bar"})
+					So(childBlock.State["foo"], ShouldEqual, "baz")
+					So(childBlock.State[string(retKey)+":ret"], ShouldEqual, "bar")
 				})
 			})
 		})

@@ -100,14 +100,11 @@ func (b *Block) UpdateState() error {
 			return err
 		}
 
-		if ret != nil {
-			retKey, err := tx.ReturnKey()
-			if err != nil {
-				return err
-			}
-			state[string(retKey)+":ret"] = ret
+		retKey, err := tx.ReturnKey()
+		if err != nil {
+			return err
 		}
-
+		state[string(retKey)+":ret"] = ret
 	}
 
 	// TODO: hash states in blockchain with patricia tree

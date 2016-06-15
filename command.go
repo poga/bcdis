@@ -25,6 +25,7 @@ func (cmd Command) Execute(state map[string]interface{}) (interface{}, error) {
 	switch cmd.OP {
 	case SET:
 		state[cmd.Key] = cmd.Arguments[0]
+		return "OK", nil
 	case INCR:
 		if _, ok := state[cmd.Key]; !ok {
 			state[cmd.Key] = "0"
@@ -34,6 +35,8 @@ func (cmd Command) Execute(state map[string]interface{}) (interface{}, error) {
 			return nil, err
 		}
 		state[cmd.Key] = strconv.FormatInt(i+1, 10)
+
+		return state[cmd.Key], nil
 	case GET:
 		return state[cmd.Key], nil
 	case GETSET:
