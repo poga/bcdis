@@ -192,7 +192,7 @@ func TestBlock(t *testing.T) {
 					So(err, ShouldBeNil)
 
 					// previous state should not be affected
-					So(rootBlock.State["foo"], ShouldResemble, "bar")
+					So(rootBlock.State["foo"], ShouldEqual, "bar")
 					retKey, err := tx.ReturnKey()
 					So(err, ShouldBeNil)
 
