@@ -64,6 +64,7 @@ func (t *Transaction) Command() (Command, error) {
 	if err != nil {
 		return Command{}, err
 	}
+	cmd.TX = t
 
 	return cmd, nil
 }

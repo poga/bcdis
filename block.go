@@ -12,7 +12,7 @@ type Block struct {
 	Header       BlockHeader
 	Transactions []*Transaction
 	signature    []byte
-	State        map[string]interface{}
+	State        State
 	Previous     *Block
 }
 
@@ -21,6 +21,23 @@ type BlockHeader struct {
 	RootHash [32]byte // TODO: root of merkel tree
 	Time     time.Time
 	Nonce    uint64
+}
+
+type State map[string]*Value
+
+type Value struct {
+	Val        interface{}
+	Expire     time.Time
+	WillExpire bool
+}
+
+func (v *Value) UpdateVal(val interface{}) {
+	v.Val = val
+}
+
+func (v *Value) UpdateExpire(expire time.Time) {
+	v.Expire = expire
+	v.WillExpire = true
 }
 
 func (b *Block) Hash() ([32]byte, error) {
@@ -81,9 +98,9 @@ func (b *Block) VerifyTransaction() error {
 }
 
 func (b *Block) UpdateState() error {
-	var state map[string]interface{}
+	var state State
 	if b.Previous == nil {
-		state = make(map[string]interface{})
+		state = State{}
 	} else {
 		state = cloneState(b.Previous.State)
 	}
@@ -104,7 +121,14 @@ func (b *Block) UpdateState() error {
 		if err != nil {
 			return err
 		}
-		state[string(retKey)+":ret"] = ret
+		state[string(retKey)+":ret"] = &Value{Val: ret}
+	}
+
+	// expire expired values
+	for k, v := range state {
+		if v.WillExpire && time.Now().After(v.Expire) {
+			delete(state, k)
+		}
 	}
 
 	// TODO: hash states in blockchain with patricia tree
@@ -166,8 +190,8 @@ func merkleHash(left []*Transaction, right []*Transaction) ([32]byte, error) {
 	return sha256.Sum256(combine), nil
 }
 
-func cloneState(state map[string]interface{}) map[string]interface{} {
-	newState := make(map[string]interface{})
+func cloneState(state State) State {
+	newState := State{}
 	for k, v := range state {
 		newState[k] = v
 	}

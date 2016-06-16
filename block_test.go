@@ -2,6 +2,7 @@ package main
 
 import (
 	"testing"
+	"time"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -158,7 +159,7 @@ func TestBlock(t *testing.T) {
 			err := rootBlock.UpdateState()
 			So(err, ShouldBeNil)
 
-			So(rootBlock.State["foo"], ShouldEqual, "bar")
+			So(rootBlock.State["foo"].Val, ShouldEqual, "bar")
 
 			Convey("A child block with command transaction", func() {
 				childBlock, err := NewBlock(rootBlock)
@@ -173,9 +174,9 @@ func TestBlock(t *testing.T) {
 					So(err, ShouldBeNil)
 
 					// previous state should not be affected
-					So(rootBlock.State["foo"], ShouldEqual, "bar")
+					So(rootBlock.State["foo"].Val, ShouldEqual, "bar")
 
-					So(childBlock.State["foo2"], ShouldEqual, "baz")
+					So(childBlock.State["foo2"].Val, ShouldEqual, "baz")
 				})
 			})
 
@@ -192,13 +193,84 @@ func TestBlock(t *testing.T) {
 					So(err, ShouldBeNil)
 
 					// previous state should not be affected
-					So(rootBlock.State["foo"], ShouldEqual, "bar")
+					So(rootBlock.State["foo"].Val, ShouldEqual, "bar")
 					retKey, err := tx.ReturnKey()
 					So(err, ShouldBeNil)
 
-					So(childBlock.State["foo"], ShouldEqual, "baz")
-					So(childBlock.State[string(retKey)+":ret"], ShouldEqual, "bar")
+					So(childBlock.State["foo"].Val, ShouldEqual, "baz")
+					So(childBlock.State[string(retKey)+":ret"].Val, ShouldEqual, "bar")
 				})
+			})
+		})
+
+		Convey("can expire value when updating state", func() {
+			err := rootBlock.UpdateState()
+			So(err, ShouldBeNil)
+
+			So(rootBlock.State["foo"].Val, ShouldEqual, "bar")
+
+			Convey("A child block with command transaction", func() {
+				childBlock, err := NewBlock(rootBlock)
+				So(err, ShouldBeNil)
+
+				tx, err := NewTransactionFromCommand("alice", NewCommand(SET, "foo2", "baz"))
+				So(err, ShouldBeNil)
+
+				Convey("can caluclate new state based on included transactions", func() {
+					childBlock.Transactions = append(childBlock.Transactions, tx)
+					err := childBlock.UpdateState()
+					So(err, ShouldBeNil)
+
+					// previous state should not be affected
+					So(rootBlock.State["foo"].Val, ShouldEqual, "bar")
+
+					So(childBlock.State["foo2"].Val, ShouldEqual, "baz")
+				})
+			})
+
+			Convey("can set return value from transaction into another key", func() {
+				childBlock, err := NewBlock(rootBlock)
+				So(err, ShouldBeNil)
+
+				tx, err := NewTransactionFromCommand("alice", NewCommand(GETSET, "foo", "baz"))
+				So(err, ShouldBeNil)
+
+				Convey("can caluclate new state based on included transactions", func() {
+					childBlock.Transactions = append(childBlock.Transactions, tx)
+					err := childBlock.UpdateState()
+					So(err, ShouldBeNil)
+
+					// previous state should not be affected
+					So(rootBlock.State["foo"].Val, ShouldEqual, "bar")
+					retKey, err := tx.ReturnKey()
+					So(err, ShouldBeNil)
+
+					So(childBlock.State["foo"].Val, ShouldEqual, "baz")
+					So(childBlock.State[string(retKey)+":ret"].Val, ShouldEqual, "bar")
+				})
+			})
+		})
+
+		Convey("A root block with expire transaction", func() {
+			rootBlock, err := NewBlock(nil)
+			So(err, ShouldBeNil)
+
+			tx, err := NewTransactionFromCommand("alice", NewCommand(SET, "foo", "bar"))
+			So(err, ShouldBeNil)
+			rootBlock.Transactions = append(rootBlock.Transactions, tx)
+
+			tx, err = NewTransactionFromCommand("alice", NewCommand(EXPIRE, "foo", "2"))
+			So(err, ShouldBeNil)
+			rootBlock.Transactions = append(rootBlock.Transactions, tx)
+
+			time.Sleep(3 * time.Second)
+
+			Convey("can expire value when updating state", func() {
+				err := rootBlock.UpdateState()
+				So(err, ShouldBeNil)
+
+				So(rootBlock.State["foo"], ShouldBeNil)
+
 			})
 		})
 	})
