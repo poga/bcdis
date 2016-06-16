@@ -98,7 +98,10 @@ func TestBlock(t *testing.T) {
 			})
 
 			Convey(name+" can add transactions into block", func() {
-				b.Transactions = append(b.Transactions, NewTransaction("alice", "bob", "payload"))
+				tx := NewTransaction("alice", "bob", "payload")
+				// find valid proof of work
+				So(Work(tx), ShouldBeNil)
+				b.Transactions = append(b.Transactions, tx)
 
 				Convey("block transaction count need to be power of 2 to calculate merkle hash", func() {
 					So(b.HashTransactions(), ShouldNotBeNil)
@@ -106,7 +109,10 @@ func TestBlock(t *testing.T) {
 				})
 
 				Convey("block with 2 transaction can be hashed with merkle tree", func() {
-					b.Transactions = append(b.Transactions, NewTransaction("bob", "alice", "payload2"))
+					tx := NewTransaction("bob", "alice", "payload2")
+					So(Work(tx), ShouldBeNil)
+
+					b.Transactions = append(b.Transactions, tx)
 					So(b.HashTransactions(), ShouldBeNil)
 					So(b.Header.RootHash, ShouldNotEqual, [32]byte{})
 					So(b.VerifyTransaction(), ShouldBeNil)
@@ -115,7 +121,8 @@ func TestBlock(t *testing.T) {
 						b.Transactions[0].NextTry()
 						So(b.VerifyTransaction(), ShouldNotBeNil)
 
-						Convey("if we rehash the block, the block will be verified again", func() {
+						Convey("if we rehash the block and rework the transaction in the block, the block will be verified again", func() {
+							So(Work(b.Transactions[0]), ShouldBeNil)
 							So(b.HashTransactions(), ShouldBeNil)
 							So(b.Header.RootHash, ShouldNotEqual, [32]byte{})
 							So(b.VerifyTransaction(), ShouldBeNil)
@@ -124,9 +131,18 @@ func TestBlock(t *testing.T) {
 				})
 
 				Convey("block with len(transaction) = 2^n can be hashed with merkle tree", func() {
-					b.Transactions = append(b.Transactions, NewTransaction("bob", "alice", "payload2"))
-					b.Transactions = append(b.Transactions, NewTransaction("alice", "bob", "payload3"))
-					b.Transactions = append(b.Transactions, NewTransaction("bob", "alice", "payload4"))
+					tx := NewTransaction("bob", "alice", "payload2")
+					So(Work(tx), ShouldBeNil)
+					b.Transactions = append(b.Transactions, tx)
+
+					tx = NewTransaction("alice", "bob", "payload3")
+					So(Work(tx), ShouldBeNil)
+					b.Transactions = append(b.Transactions, tx)
+
+					tx = NewTransaction("bob", "alice", "payload4")
+					So(Work(tx), ShouldBeNil)
+					b.Transactions = append(b.Transactions, tx)
+
 					So(b.HashTransactions(), ShouldBeNil)
 					So(b.Header.RootHash, ShouldNotEqual, [32]byte{})
 					So(b.VerifyTransaction(), ShouldBeNil)
@@ -135,7 +151,9 @@ func TestBlock(t *testing.T) {
 						b.Transactions[1].NextTry()
 						So(b.VerifyTransaction(), ShouldNotBeNil)
 
-						Convey("if we rehash the block, the block will be verified again", func() {
+						Convey("if we rehash the block and rework the transaction, the block will be verified again", func() {
+							So(Work(b.Transactions[1]), ShouldBeNil)
+
 							So(b.HashTransactions(), ShouldBeNil)
 							So(b.Header.RootHash, ShouldNotEqual, [32]byte{})
 							So(b.VerifyTransaction(), ShouldBeNil)
@@ -194,7 +212,7 @@ func TestBlock(t *testing.T) {
 
 					// previous state should not be affected
 					So(rootBlock.State["foo"].Val, ShouldEqual, "bar")
-					retKey, err := tx.ReturnKey()
+					retKey, err := tx.ReadableHash()
 					So(err, ShouldBeNil)
 
 					So(childBlock.State["foo"].Val, ShouldEqual, "baz")
@@ -242,7 +260,7 @@ func TestBlock(t *testing.T) {
 
 					// previous state should not be affected
 					So(rootBlock.State["foo"].Val, ShouldEqual, "bar")
-					retKey, err := tx.ReturnKey()
+					retKey, err := tx.ReadableHash()
 					So(err, ShouldBeNil)
 
 					So(childBlock.State["foo"].Val, ShouldEqual, "baz")

@@ -31,7 +31,7 @@ func (t *Transaction) Hash() ([32]byte, error) {
 	return sha256.Sum256(data), nil
 }
 
-func (t *Transaction) ReturnKey() ([]byte, error) {
+func (t *Transaction) ReadableHash() ([]byte, error) {
 	hash, err := t.Hash()
 	if err != nil {
 		return []byte{}, err

@@ -11,12 +11,11 @@ var ProofOfWorkThreshold = [32]byte{0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 
 func Work(workable Workable) error {
 	for {
-		hash, err := workable.Hash()
+		reached, err := reachThreshold(workable)
 		if err != nil {
 			return err
 		}
-
-		if binary.BigEndian.Uint64(hash[:]) < binary.BigEndian.Uint64(ProofOfWorkThreshold[:]) {
+		if reached {
 			break
 		}
 
@@ -24,4 +23,13 @@ func Work(workable Workable) error {
 	}
 
 	return nil
+}
+
+func reachThreshold(workable Workable) (bool, error) {
+	hash, err := workable.Hash()
+	if err != nil {
+		return false, err
+	}
+
+	return binary.BigEndian.Uint64(hash[:]) < binary.BigEndian.Uint64(ProofOfWorkThreshold[:]), nil
 }

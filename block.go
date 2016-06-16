@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"time"
 )
 
@@ -94,6 +95,20 @@ func (b *Block) VerifyTransaction() error {
 	if rootHash != b.Header.RootHash {
 		return errors.New("Verification failed")
 	}
+
+	for _, tx := range b.Transactions {
+		hash, err := tx.ReadableHash()
+		if err != nil {
+
+		}
+		reached, err := reachThreshold(tx)
+		if err != nil {
+			return err
+		}
+		if !reached {
+			return fmt.Errorf("Invalid Proof of Work %s", string(hash[:]))
+		}
+	}
 	return nil
 }
 
@@ -117,7 +132,7 @@ func (b *Block) UpdateState() error {
 			return err
 		}
 
-		retKey, err := tx.ReturnKey()
+		retKey, err := tx.ReadableHash()
 		if err != nil {
 			return err
 		}
