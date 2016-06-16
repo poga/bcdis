@@ -36,8 +36,11 @@ func (t *Transaction) ReadableHash() ([]byte, error) {
 	if err != nil {
 		return []byte{}, err
 	}
-	bigInt := new(big.Int).SetBytes(hash[:])
-	return base58.EncodeBig([]byte{}, bigInt), nil
+	return readableHash(hash), nil
+}
+
+func readableHash(hash [32]byte) []byte {
+	return base58.EncodeBig([]byte{}, new(big.Int).SetBytes(hash[:]))
 }
 
 func (t *Transaction) NextTry() {

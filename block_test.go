@@ -94,7 +94,7 @@ func TestBlock(t *testing.T) {
 
 			Convey(name+" with no transaction can't be verified", func() {
 				So(b.HashTransactions(), ShouldNotBeNil)
-				So(b.VerifyTransaction(), ShouldNotBeNil)
+				So(b.VerifyTransactions(), ShouldNotBeNil)
 			})
 
 			Convey(name+" can add transactions into block", func() {
@@ -105,7 +105,7 @@ func TestBlock(t *testing.T) {
 
 				Convey("block transaction count need to be power of 2 to calculate merkle hash", func() {
 					So(b.HashTransactions(), ShouldNotBeNil)
-					So(b.VerifyTransaction(), ShouldNotBeNil)
+					So(b.VerifyTransactions(), ShouldNotBeNil)
 				})
 
 				Convey("block with 2 transaction can be hashed with merkle tree", func() {
@@ -115,18 +115,28 @@ func TestBlock(t *testing.T) {
 					b.Transactions = append(b.Transactions, tx)
 					So(b.HashTransactions(), ShouldBeNil)
 					So(b.Header.RootHash, ShouldNotEqual, [32]byte{})
-					So(b.VerifyTransaction(), ShouldBeNil)
+					So(b.VerifyTransactions(), ShouldBeNil)
 
 					Convey("if any transaction is modified, block should be failed to verify without rehash", func() {
 						b.Transactions[0].NextTry()
-						So(b.VerifyTransaction(), ShouldNotBeNil)
+						So(b.VerifyTransactions(), ShouldNotBeNil)
 
 						Convey("if we rehash the block and rework the transaction in the block, the block will be verified again", func() {
 							So(Work(b.Transactions[0]), ShouldBeNil)
 							So(b.HashTransactions(), ShouldBeNil)
 							So(b.Header.RootHash, ShouldNotEqual, [32]byte{})
-							So(b.VerifyTransaction(), ShouldBeNil)
+							So(b.VerifyTransactions(), ShouldBeNil)
+
+							Convey("block can be worked to be valid", func() {
+								So(Work(b), ShouldBeNil)
+								So(b.Verify(), ShouldBeNil)
+							})
 						})
+					})
+
+					Convey("block can be worked to be valid", func() {
+						So(Work(b), ShouldBeNil)
+						So(b.Verify(), ShouldBeNil)
 					})
 				})
 
@@ -145,18 +155,28 @@ func TestBlock(t *testing.T) {
 
 					So(b.HashTransactions(), ShouldBeNil)
 					So(b.Header.RootHash, ShouldNotEqual, [32]byte{})
-					So(b.VerifyTransaction(), ShouldBeNil)
+					So(b.VerifyTransactions(), ShouldBeNil)
+
+					Convey("block can be worked to be valid", func() {
+						So(Work(b), ShouldBeNil)
+						So(b.Verify(), ShouldBeNil)
+					})
 
 					Convey("if any transaction is modified, block should be failed to verify without rehash", func() {
 						b.Transactions[1].NextTry()
-						So(b.VerifyTransaction(), ShouldNotBeNil)
+						So(b.VerifyTransactions(), ShouldNotBeNil)
 
 						Convey("if we rehash the block and rework the transaction, the block will be verified again", func() {
 							So(Work(b.Transactions[1]), ShouldBeNil)
 
 							So(b.HashTransactions(), ShouldBeNil)
 							So(b.Header.RootHash, ShouldNotEqual, [32]byte{})
-							So(b.VerifyTransaction(), ShouldBeNil)
+							So(b.VerifyTransactions(), ShouldBeNil)
+
+							Convey("block can be worked to be valid", func() {
+								So(Work(b), ShouldBeNil)
+								So(b.Verify(), ShouldBeNil)
+							})
 						})
 					})
 				})

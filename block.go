@@ -82,7 +82,23 @@ func (b *Block) HashTransactions() error {
 	return nil
 }
 
-func (b *Block) VerifyTransaction() error {
+func (b *Block) Verify() error {
+	reached, err := reachThreshold(b)
+	if err != nil {
+		return err
+	}
+	if !reached {
+		hash, err := b.Hash()
+		if err != nil {
+			return err
+		}
+		return fmt.Errorf("Invalid Proof of work on block %s", readableHash(hash))
+	}
+
+	return b.VerifyTransactions()
+}
+
+func (b *Block) VerifyTransactions() error {
 	if len(b.Transactions) < 2 || !isPowerOf2(len(b.Transactions)) {
 		return errors.New("block can only contain 2^n transactions and n can't be 0")
 	}
